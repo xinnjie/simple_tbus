@@ -19,15 +19,20 @@
  */
 class SimpleChannel {
     SimpleChannelInfo *shm_channel_info;
-    std::string shm_name;  // channel 所在共享内存的名字
+    std::string shm_channel_name;  // channel 所在共享内存的名字
     std::unique_ptr<boost::interprocess::mapped_region> region_ptr;
 
 public:
+    /**
+     * @param shm_channel_info 存在共享内存中的 SimpleChannelInfo 结构，SimpleChannel会对读写指针做操作
+     */
     explicit SimpleChannel(SimpleChannelInfo *shm_channel_info);
 
     int channel_send(const char* buffer, size_t buf_len);
 
     int channel_resv(char *buffer, size_t &max_len);
+
+    int channel_peek(char *buffer,size_t &max_len);
 
 
     /***************** getter & setter **********************/

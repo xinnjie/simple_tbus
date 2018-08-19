@@ -5,6 +5,7 @@
 #ifndef TENCENT_INTERN_SIMPLECHANNELINFO_H
 #define TENCENT_INTERN_SIMPLECHANNELINFO_H
 
+#define SIMPLE_TBUS_MAX_SHM_NAME_LEN 64
 
 #include <cstddef>
 #include <cstdint>
@@ -18,7 +19,7 @@ struct SimpleChannelInfo {
     uint32_t to;
     uint32_t read_index;
     uint32_t write_index;
-    char shm_name[64];  // channel 所在共享内存的名字
+    char shm_name[SIMPLE_TBUS_MAX_SHM_NAME_LEN  ];  // channel 所在共享内存的名字
 };
 
 

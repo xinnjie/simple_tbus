@@ -8,8 +8,8 @@
 
 using namespace boost::interprocess;
 SimpleChannel::SimpleChannel(SimpleChannelInfo *shm_channel_info) : shm_channel_info(shm_channel_info) {
-    shm_name = shm_channel_info->shm_name;
-    shared_memory_object shm(open_only, shm_name.c_str(), read_only);
+    shm_channel_name = shm_channel_info->shm_name;
+    shared_memory_object shm(open_only, shm_channel_name.c_str(), read_write);
     offset_t shm_size = 0;
     assert(shm.get_size(shm_size));
     region_ptr = std::make_unique<mapped_region>(shm, read_write, 0, shm_size);
@@ -88,6 +88,41 @@ int SimpleChannel::channel_resv(char *buffer, size_t &max_len) {
             uint32_t remain_to_read = std::min(head_remaining_bytes, static_cast<uint32_t>(max_len) - read_to_tail_bytes);
             memcpy(buffer + read_to_tail_bytes, src, remain_to_read);
             set_read_index(remain_to_read);
+            max_len = read_to_tail_bytes + remain_to_read;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int SimpleChannel::channel_peek(char *buffer, size_t &max_len) {
+    uint32_t size = get_shm_size();
+    uint32_t read_shift = get_read_index();
+    uint32_t write_shift = get_write_index();
+
+    char *src = get_shm_ptr();
+
+    if (read_shift == write_shift) { // nothing to read
+        return -1;
+    }
+
+    if (read_shift < write_shift) {
+        uint32_t read_bytes = std::min(write_shift-read_shift, static_cast<uint32_t>(max_len));
+        memcpy(buffer, src + read_shift, read_bytes);
+        max_len = read_bytes;
+        return 0;
+    }
+    else {
+        uint32_t read_to_tail_bytes = size - read_shift;
+        if (max_len <= read_to_tail_bytes) {
+            memcpy(buffer, src + read_shift, max_len);
+            return 0;
+        }
+        else {
+            memcpy(buffer, src + read_shift, read_to_tail_bytes);
+            uint32_t head_remaining_bytes = write_shift;
+            uint32_t remain_to_read = std::min(head_remaining_bytes, static_cast<uint32_t>(max_len) - read_to_tail_bytes);
+            memcpy(buffer + read_to_tail_bytes, src, remain_to_read);
             max_len = read_to_tail_bytes + remain_to_read;
             return 0;
         }
