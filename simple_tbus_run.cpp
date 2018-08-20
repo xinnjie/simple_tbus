@@ -6,8 +6,7 @@
 #include "SimpleTbus.h"
 
 using namespace std;
-int main() {
-
+int main(int argc, char *argv[]) {
     string shm_name = "test_channel_1";
     SimpleTbusCtl tbus_ctl(shm_name, 4096);
     tbus_ctl.add_channel("0.0.0.1", "0.0.0.2", shm_name, 4096);

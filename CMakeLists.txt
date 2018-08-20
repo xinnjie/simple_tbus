@@ -35,3 +35,12 @@ target_link_libraries(simple_tbus ${Boost_LIBRARIES})
 
 add_executable(simple_tbus_run simple_tbus_run.cpp)
 target_link_libraries(simple_tbus_run simple_tbus)
+
+add_executable(create_channels sh/create_channels.cpp)
+target_link_libraries(create_channels simple_tbus)
+
+add_executable(channel_receive sh/channel_receive.cpp)
+target_link_libraries(channel_receive simple_tbus)
+
+add_executable(channel_send sh/channel_send.cpp)
+target_link_libraries(channel_send simple_tbus)
