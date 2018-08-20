@@ -59,7 +59,7 @@ public:
      * 发送一条消息，每条消息头包含一个消息长度信息
      * @param msg_buffer
      * @param message_len
-     * @return
+     * @return 0 on success, -1 on failure
      */
     int channel_send_msg(const void *msg_buffer, size_t message_len);
 

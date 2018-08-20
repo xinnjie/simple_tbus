@@ -51,3 +51,24 @@ SimpleChannel &SimpleTbus::get_send_channel(const std::string &send_channel_name
 SimpleChannel &SimpleTbus::get_recv_channel(const std::string &read_channel_name) {
     return *recv_channels.at(addr_aton(read_channel_name.c_str()));
 }
+
+int
+SimpleTbus::resv_msg(uint32_t channel_id, void *msg_buffer, size_t &max_msg_len) {
+    SimpleChannel &resv_channel = *recv_channels.at(channel_id);
+    return resv_channel.channel_resv_msg(msg_buffer, max_msg_len);
+}
+
+int SimpleTbus::resv_msg(const std::string &recv_channel_name, void *msg_buffer, size_t &max_msg_len) {
+    uint32_t channel_id = addr_aton(recv_channel_name.c_str());
+    return resv_msg(channel_id, msg_buffer, max_msg_len);
+}
+
+int SimpleTbus::send_msg(uint32_t channel_id, const void *msg_buffer, size_t message_len) {
+    SimpleChannel &send_channel = *send_channels.at(channel_id);
+    return send_channel.channel_send_msg(msg_buffer, message_len);
+}
+
+int SimpleTbus::send_msg(const std::string &send_channel_name, const void *msg_buffer, size_t message_len) {
+    uint32_t channel_id = addr_aton(send_channel_name.c_str());
+    return send_msg(channel_id, msg_buffer, message_len);
+}

@@ -16,6 +16,9 @@ SimpleChannel::SimpleChannel(SimpleChannelInfo *shm_channel_info) : shm_channel_
 }
 
 int SimpleChannel::channel_write_raw(const void *buffer, size_t buf_len) {
+    if (get_remaining_write_bytes() < buf_len) {
+        return -1;
+    }
     uint32_t size = get_shm_size();
     uint32_t write_shift = get_write_index();
     uint32_t read_shift = get_read_index();
