@@ -30,7 +30,9 @@ add_library(simple_tbus
         SimpleChannel.cpp
         SimpleChannel.h
         NetworkUtil.cpp
-        NetworkUtil.h)
+        NetworkUtil.h
+        SimpleTbusd.cpp
+        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h)
 target_link_libraries(simple_tbus ${Boost_LIBRARIES})
 
 add_executable(simple_tbus_run simple_tbus_run.cpp)
@@ -44,3 +46,6 @@ target_link_libraries(channel_receive simple_tbus)
 
 add_executable(channel_send sh/channel_send.cpp)
 target_link_libraries(channel_send simple_tbus)
+
+add_executable(tbusd_run tbusd_run.cpp)
+target_link_libraries(tbusd_run simple_tbus)

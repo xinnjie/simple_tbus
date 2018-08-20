@@ -6,6 +6,7 @@
 #define TENCENT_INTERN_SIMPLETBUS_H
 #include <unordered_map>
 #include <string>
+#include <queue>
 #include <boost/interprocess/mapped_region.hpp>
 #include "structs/SimpleChannelInfo.h"
 #include "structs/SimpleTbusInfo.h"
@@ -20,6 +21,7 @@ public:
      */
     SimpleTbus(const std::string &self_address, const std::string &shm_name);
 
+    // todo 将下面的这些方法改为不抛出异常的
     /**
      * 发送一条消息
      * @param msg_buffer
@@ -62,6 +64,8 @@ private:
 
     // 存储在共享内存中的只读tbus_info
     SimpleTbusInfo *tbus_info;
+
+    std::queue<uint32_t> read_queue;
 };
 
 
