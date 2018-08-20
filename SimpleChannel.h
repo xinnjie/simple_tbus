@@ -18,9 +18,35 @@
  * SimpleChannel的channel信息包含在直接内存中的SimpleChannelInfo
  */
 class SimpleChannel {
+private:
     SimpleChannelInfo *shm_channel_info;
     std::string shm_channel_name;  // channel 所在共享内存的名字
     std::unique_ptr<boost::interprocess::mapped_region> region_ptr;
+
+    /**
+     * 向通道写入数据，通道为循环队列
+     * @param buffer
+     * @param buf_len
+     * @return 0 on success, -1 on failure
+     */
+    int channel_write_raw(const void *buffer, size_t buf_len);
+
+    /**
+     * 从通道读取指定长度的数据，如果通道中没有这么多数据，返回失败
+     * @param buffer
+     * @param len
+     * @return 0 on success, -1 on failure
+     */
+    int channel_read_raw(void *buffer, size_t len);
+
+    /**
+     * 从通道读取peek指定长度数据，但是不改变读指针
+     * @param buffer
+     * @param len
+     * @return
+     */
+    int channel_peek_raw(void *buffer, size_t len);
+
 
 public:
     /**
@@ -28,11 +54,16 @@ public:
      */
     explicit SimpleChannel(SimpleChannelInfo *shm_channel_info);
 
-    int channel_send(const char* buffer, size_t buf_len);
 
-    int channel_resv(char *buffer, size_t &max_len);
+    /**
+     * 发送一条消息，每条消息头包含一个消息长度信息
+     * @param msg_buffer
+     * @param message_len
+     * @return
+     */
+    int channel_send_msg(const void *msg_buffer, size_t message_len);
 
-    int channel_peek(char *buffer,size_t &max_len);
+    int channel_resv_msg(void *msg_buffer, size_t &max_msg_len);
 
 
     /***************** getter & setter **********************/
@@ -66,6 +97,16 @@ public:
 
     inline char *get_shm_ptr() {
         return static_cast<char*>(region_ptr->get_address());
+    }
+
+    inline uint32_t get_remaining_write_bytes() {
+        return get_write_index() < get_read_index() ?
+            get_read_index() - get_write_index() : get_shm_size() - (get_write_index() - get_read_index());
+    }
+
+    inline uint32_t get_remaining_read_bytes() {
+        return get_read_index() <= get_write_index() ?
+            get_write_index() - get_read_index() : get_shm_size() - (get_read_index() - get_write_index());
     }
 };
 

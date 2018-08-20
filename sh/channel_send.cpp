@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     SimpleTbus tbus(src_ip, shm_name);
     SimpleChannel &send_channel = tbus.get_send_channel(dest_ip);
-    int success = send_channel.channel_send(message.c_str(), message.size() + 1);
+    int success = send_channel.channel_send_msg(message.c_str(), message.size() + 1);
     if (success == 0) {
         cout << "send: " << message << endl;
     }

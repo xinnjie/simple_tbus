@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     size_t len = sizeof(buffer);
     SimpleTbus tbus(dest_ip, shm_name);
     SimpleChannel &recv_channel = tbus.get_recv_channel(src_ip);
-    int success = recv_channel.channel_resv(buffer, len);
+    int success = recv_channel.channel_resv_msg(buffer, len);
     if (success == 0) {
         cout << "received: " << buffer << endl;
     }

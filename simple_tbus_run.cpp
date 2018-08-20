@@ -18,11 +18,11 @@ int main(int argc, char *argv[]) {
     SimpleTbus tbus_recv("0.0.0.2", shm_name);
     SimpleChannel &recv_channel = tbus_recv.get_recv_channel("0.0.0.1");
 
-    send_channel.channel_send("hello,world!", sizeof("hello,world!"));
+    send_channel.channel_write_raw("hello,world!", sizeof("hello,world!"));
 
     char buffer[64];
     size_t len = sizeof(buffer);
-    recv_channel.channel_resv(buffer, len);
+    recv_channel.channel_read_raw(buffer, len);
 
     cout << buffer << endl;
 
