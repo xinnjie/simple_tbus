@@ -6,20 +6,24 @@
 #define TENCENT_INTERN_SIMPLETBUS_H
 #include <unordered_map>
 #include <string>
-#include <queue>
+#include <boost/lockfree/queue.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include "structs/SimpleChannelInfo.h"
 #include "structs/SimpleTbusInfo.h"
 #include "SimpleChannel.h"
+#include "structs/TbusMsg.h"
 
 class SimpleTbus {
 public:
     /**
      * 从名为shm_name的共享内存中找到所有通道信息，构建出 send,recv channel 的字典
-     * @param self_address
+     * @param self_process_id
      * @param tbus_shm_name
      */
-    SimpleTbus(const std::string &self_address, const std::string &tbus_shm_name);
+    SimpleTbus(const std::string &self_process_id, const std::string &tbus_shm_name,
+               boost::asio::io_context &io_context, const boost::asio::ip::tcp::resolver::results_type &tbusd_endpoints);
 
     // todo 将下面的这些方法改为不抛出异常的
     /**
@@ -45,6 +49,34 @@ public:
 
     SimpleChannel &get_recv_channel(const std::string &read_channel_name);
 private:
+
+    /**
+     * 将tbus全局通道信息表从共享内存中读出
+     * @param self_process_id
+     * @param tbus_shm_name
+     */
+    void read_tbus_shm(const std::string &self_process_id, const std::string &tbus_shm_name);
+
+
+    /*****************************网络***************************/
+    void do_connect_to_tbusd(const boost::asio::ip::tcp::resolver::results_type &tbusd_endpoints);
+
+    void do_read_message_type();
+
+    void do_read_tbusmsg();
+
+
+    /**
+     * 在写完数据后通知tbusd
+     */
+    void notify_tbusd_after_send(const TbusMsg &tbusMsg);
+    void do_send_message_type(const TbusMsg &tbusMsg);
+    void do_send_tbusmsg(std::shared_ptr<TbusMsg> tbusmsg_ptr);
+
+    /*
+     * members
+     */
+
     std::unordered_map<uint32_t, std::unique_ptr<SimpleChannel>> send_channels;
     std::unordered_map<uint32_t, std::unique_ptr<SimpleChannel>> recv_channels;
 
@@ -57,7 +89,7 @@ private:
      */
     uint32_t self_address_n;
 
-    // tbus信息所在的共享内存名称
+    //tbus全局通道信息表
     std::string shm_name;
     std::unique_ptr<boost::interprocess::shared_memory_object> shm_obj_ptr;
     std::unique_ptr<boost::interprocess::mapped_region> region_ptr;
@@ -65,7 +97,17 @@ private:
     // 存储在共享内存中的只读tbus_info
     SimpleTbusInfo *tbus_info;
 
-    std::queue<uint32_t> read_queue;
+    //可读通道号
+    boost::lockfree::queue<uint32_t> read_queue;
+
+    boost::asio::ip::tcp::socket socket_tbusd_;
+    boost::asio::io_context &io_context_;
+
+    uint32_t message_type, send_message_type = static_cast<uint32_t>(MessageType::TBUSMSG);
+    TbusMsg tbus_msg;
+
+
+
 };
 
 

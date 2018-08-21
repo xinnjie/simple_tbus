@@ -31,7 +31,7 @@ void SimpleTbusdConn::do_read_message_type() {
                                     }
                                 }
                                 else {
-                                    BOOST_LOG_TRIVIAL(error) << "read message type error, type:" << message_type;
+                                    BOOST_LOG_TRIVIAL(error) << "read message type failure";
                                 }
                             });
 }
@@ -43,7 +43,7 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                                 if (!ec && bytes_transferred == sizeof(tbus_msg)) {
                                     BOOST_LOG_TRIVIAL(debug) << "read TbusMsg: " << tbus_msg;
                                     // todo do something
-                                    if (tbus_msg.is_reader) {
+                                    if (tbus_msg.from_reader) {
 //                                        if ()
 
                                     }

@@ -12,10 +12,10 @@ int main(int argc, char *argv[]) {
     tbus_ctl.add_channel("0.0.0.1", "0.0.0.2", shm_name, 4096);
     tbus_ctl.create();
 
-    SimpleTbus tbus_send("0.0.0.1", shm_name);
+    SimpleTbus tbus_send("0.0.0.1", shm_name, <#initializer#>, <#initializer#>);
     SimpleChannel &send_channel = tbus_send.get_send_channel("0.0.0.2");
 
-    SimpleTbus tbus_recv("0.0.0.2", shm_name);
+    SimpleTbus tbus_recv("0.0.0.2", shm_name, <#initializer#>, <#initializer#>);
     SimpleChannel &recv_channel = tbus_recv.get_recv_channel("0.0.0.1");
 
     send_channel.channel_write_raw("hello,world!", sizeof("hello,world!"));

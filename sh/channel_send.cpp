@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     string dest_ip = argv[3];
     string message = argv[4];
 
-    SimpleTbus tbus(src_ip, shm_name);
+    SimpleTbus tbus(src_ip, shm_name, <#initializer#>, <#initializer#>);
     SimpleChannel &send_channel = tbus.get_send_channel(dest_ip);
     int success = tbus.send_msg(dest_ip, message.c_str(), message.size() + 1);
     if (success == 0) {

@@ -33,20 +33,28 @@ public:
                 const std::string &tbus_shm_name,
                 std::map<uint32_t, uint32_t> *process_id2ip);
 
-    void read_tbus(const std::string &tbus_shm_name);
-
 private:
     void do_accept();
 
+    void read_tbus_info(const std::string &tbus_shm_name);
+
+/*
+ * members
+ */
     boost::asio::ip::tcp::acceptor acceptor_;
 
     // 通道信息  通道<processA,processB> -> channel
     std::unique_ptr<std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>>> channels_ptr;
 
-    //路由信息
+    // 路由信息
     std::unique_ptr<std::map<uint32_t, uint32_t>> process_id2ip;
 
-    std::vector<std::unique_ptr<SimpleTbusdConn>> conns;
+
+    /*****************所有连接*********************/
+    std::vector<std::shared_ptr<SimpleTbusdConn>> conns;
+    // 本地连接到tbusd的连接
+    std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> local_conns;
+    // 连接到其它tbusd的连接  ip -> conn
     std::unique_ptr<std::map<uint32_t, std::unique_ptr<SimpleTbusdConn>>> other_tbus_conns;
 
     // tbus共享内存信息

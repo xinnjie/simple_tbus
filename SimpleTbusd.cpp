@@ -34,11 +34,11 @@ SimpleTbusd::SimpleTbusd(boost::asio::io_context &io_context,
                          const std::string &tbus_shm_name,
                          std::map<uint32_t, uint32_t> *process_id2ip) : acceptor_(io_context, accept_endpoint),
                          process_id2ip(process_id2ip) {
-    read_tbus(tbus_shm_name);
+    read_tbus_info(tbus_shm_name);
     do_accept();
 }
 
-void SimpleTbusd::read_tbus(const std::string &tbus_shm_name) {
+void SimpleTbusd::read_tbus_info(const std::string &tbus_shm_name) {
     using namespace boost::interprocess;
     shm_obj_ptr = std::make_unique<shared_memory_object>(open_only, tbus_shm_name.c_str(), read_write);
     offset_t shm_size = 0;

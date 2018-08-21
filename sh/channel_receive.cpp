@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
     char buffer[512];
     size_t len = sizeof(buffer);
-    SimpleTbus tbus(dest_ip, shm_name);
+    SimpleTbus tbus(dest_ip, shm_name, <#initializer#>, <#initializer#>);
     SimpleChannel &recv_channel = tbus.get_recv_channel(src_ip);
     int success = tbus.resv_msg(src_ip, buffer, len);
     if (success == 0) {

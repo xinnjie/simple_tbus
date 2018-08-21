@@ -34,6 +34,10 @@ public:
 
     void do_read_tbusmsg();
 
+    void do_send_message_type();
+
+    void do_send_tbusmsg();
+
     // todo
     void do_send_data(const void *msg_buffer, size_t message_len);
 
