@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         boost::asio::io_context io_context;
         tcp::endpoint endpoint(tcp::v4(), port);
 
-        SimpleTbusd tbusd(io_context);
+//        SimpleTbusd tbusd(io_context);
         io_context.run();
     }
     catch (std::exception &e) {

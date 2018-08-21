@@ -7,6 +7,10 @@
 #include "structs/TbusMsg.h"
 
 
+void SimpleTbusdConn::start() {
+    do_read_message_type();
+}
+
 void SimpleTbusdConn::do_read_message_type() {
     boost::asio::async_read(socket_,
                             boost::asio::buffer(&message_type, sizeof(message_type)),
@@ -39,6 +43,11 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                                 if (!ec && bytes_transferred == sizeof(tbus_msg)) {
                                     BOOST_LOG_TRIVIAL(debug) << "read TbusMsg: " << tbus_msg;
                                     // todo do something
+                                    if (tbus_msg.is_reader) {
+//                                        if ()
+
+                                    }
+
                                 } else {
                                     BOOST_LOG_TRIVIAL(error) << "read TbusMsg error";
                                 }
@@ -74,5 +83,14 @@ void SimpleTbusdConn::do_read_data_body(){
 //                                }
 //                            });
 }
+
+SimpleTbusdConn::SimpleTbusdConn(boost::asio::ip::tcp::socket socket,
+                                 std::map<std::pair<uint32_t, uint32_t>, void *> &channel_addrs,
+                                 std::map<std::pair<uint32_t, uint32_t>, SimpleChannelInfo *> &channel_infos,
+                                 std::map<uint32_t, uint32_t> &process_id2ip) : socket_(std::move(socket)),
+                                                                                          channel_addrs(channel_addrs),
+                                                                                          channel_infos(channel_infos),
+                                                                                          process_id2ip(
+                                                                                                  process_id2ip) {}
 
 
