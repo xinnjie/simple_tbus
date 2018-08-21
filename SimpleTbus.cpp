@@ -14,6 +14,7 @@
 
 
 using boost::asio::ip::tcp;
+void _restore_read_channel_queue(SimpleChannel &channel, boost::lockfree::queue<uint32_t> &read_queue);
 
 SimpleTbus::SimpleTbus(const std::string &self_process_id, const std::string &tbus_shm_name,
                        boost::asio::io_context &io_context, const boost::asio::ip::tcp::resolver::results_type &tbusd_endpoints):
@@ -85,12 +86,24 @@ void SimpleTbus::read_tbus_shm(const std::string &self_process_id, const std::st
             BOOST_LOG_TRIVIAL(info) << "get recv channel: " << addr_ntoa(channel_info->from)
                                     << " -> "
                                     << addr_ntoa(channel_info->to);
-            // todo 需要从全局通道信息中恢复可读队列read_queue
             recv_channels[channel_info->from] = std::make_unique<SimpleChannel>(channel_info);
             SimpleChannel &resv_channel = *recv_channels[channel_info->from];
-            if (resv_channel.get_remaining_read_bytes() > 0) {
-                read_queue.push(channel_info->from);
-            }
+
+            _restore_read_channel_queue(resv_channel, read_queue);
+        }
+    }
+}
+
+void _restore_read_channel_queue(SimpleChannel &channel, boost::lockfree::queue<uint32_t> &read_queue) {
+    char *shm_start = channel.get_shm_ptr();
+    uint32_t read_index = channel.get_read_index(),
+            write_index = channel.get_write_index();
+    // todo 需要从全局通道信息中恢复可读队列read_queue 暂时只考虑一个情况 fixme
+
+    if (read_index < write_index) {
+        while (read_index < write_index) {
+            uint32_t msg_size = *reinterpret_cast<uint32_t*>(shm_start + read_index);
+            read_queue.push(channel.get_from_ip());
         }
     }
 }
@@ -180,4 +193,23 @@ void SimpleTbus::do_send_tbusmsg(std::shared_ptr<TbusMsg> tbusmsg_ptr) {
                                                          BOOST_LOG_TRIVIAL(error) << "write error, socket close";
                                                      }
                                                  });
+}
+
+int SimpleTbus::send_msg_impl(const std::string &send_channel_name, const void *msg_buffer, size_t message_len) {
+    int success = send_msg(send_channel_name, msg_buffer, message_len);
+    if (success == 0) {
+        TbusMsg notify_msg;
+        notify_msg.from_reader = 0; //false
+        notify_msg.from = self_address_n;
+        notify_msg.to = addr_aton(send_channel_name.c_str());
+        notify_tbusd_after_send(notify_msg);
+    }
+    return success;
+}
+
+int SimpleTbus::resv_msg_impl(void *msg_buffer, size_t &max_msg_len) {
+    uint32_t resv_prc = 0;
+    if (read_queue.pop(resv_prc)) {
+        return resv_msg(resv_prc, msg_buffer, max_msg_len);
+    }
 }

@@ -25,6 +25,16 @@ public:
     SimpleTbus(const std::string &self_process_id, const std::string &tbus_shm_name,
                boost::asio::io_context &io_context, const boost::asio::ip::tcp::resolver::results_type &tbusd_endpoints);
 
+
+
+    /*
+     * api
+     */
+
+    int send_msg_impl(const std::string &send_channel_name, const void *msg_buffer, size_t message_len);
+
+    int resv_msg_impl(void *msg_buffer, size_t &max_msg_len);
+
     // todo 将下面的这些方法改为不抛出异常的
     /**
      * 发送一条消息
