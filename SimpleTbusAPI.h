@@ -11,11 +11,15 @@
 #include <string>
 #include "SimpleTbus.h"
 
-int bind(const std::string &process_id);
+namespace simple_tbus {
+    int bind(const std::string &process_id);
 
-int send(const std::string &dest_id, const char *buff, size_t len);
+    int send(const std::string &dest_id, const char *buff, size_t len);
 
-int recv(char *buff, size_t &max_len);
+    int recv(char *buff, size_t &max_len);
+}
+
+//int unbind()
 
 
 #endif //TENCENT_INTERN_SIMPLETBUSAPI_H

@@ -51,8 +51,8 @@ private:
 
 
     /*****************所有连接*********************/
-    std::vector<std::shared_ptr<SimpleTbusdConn>> conns;
-    // 本地连接到tbusd的连接
+//    std::vector<std::shared_ptr<SimpleTbusdConn>> conns;    // todo 是不是没有必要保存所有连接
+    // 本地连接到tbusd的连接 process_id -> conn
     std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> local_conns;
     // 连接到其它tbusd的连接  ip -> conn
     std::unique_ptr<std::map<uint32_t, std::unique_ptr<SimpleTbusdConn>>> other_tbus_conns;

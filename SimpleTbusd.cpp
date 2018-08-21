@@ -17,9 +17,8 @@ void SimpleTbusd::do_accept() {
     acceptor_.async_accept(
             [this](boost::system::error_code ec, tcp::socket socket) {
                 if (!ec) {
-                    auto new_conn = std::make_unique<SimpleTbusdConn>(std::move(socket), *channels_ptr, *process_id2ip);
-                    new_conn->start();
-                    conns.push_back(std::move(new_conn));
+                    BOOST_LOG_TRIVIAL(info) << socket.remote_endpoint().address() << " connected";
+                    std::make_shared<SimpleTbusdConn>(std::move(socket), *channels_ptr, *process_id2ip, local_conns)->start();
                 }
                 do_accept();
             });

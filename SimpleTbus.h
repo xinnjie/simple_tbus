@@ -6,7 +6,9 @@
 #define TENCENT_INTERN_SIMPLETBUS_H
 #include <unordered_map>
 #include <string>
+#include <queue>
 #include <boost/lockfree/queue.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -14,6 +16,7 @@
 #include "structs/SimpleTbusInfo.h"
 #include "SimpleChannel.h"
 #include "structs/TbusMsg.h"
+#include "structs/SimpleMsg.h"
 
 class SimpleTbus {
 public:
@@ -75,13 +78,23 @@ private:
 
     void do_read_tbusmsg();
 
+    /**
+     * 告知自己的process_id
+     */
+     void send_process_id();
+
+
+
 
     /**
      * 在写完数据后通知tbusd
      */
-    void notify_tbusd_after_send(const TbusMsg &tbusMsg);
-    void do_send_message_type(const TbusMsg &tbusMsg);
-    void do_send_tbusmsg(std::shared_ptr<TbusMsg> tbusmsg_ptr);
+
+    void handle_async_write(void *data, uint32_t len);
+    void _aysn_write();
+    void notify_tbusd_after_send(TbusMsg tbusMsg);
+//    void do_send_tbusmsg_type(TbusMsg tbusMsg);
+//    void do_send_tbusmsg(TbusMsg tbusmsg);
 
     /*
      * members
@@ -109,6 +122,7 @@ private:
 
     //可读通道号
     boost::lockfree::queue<uint32_t> read_queue;
+    boost::lockfree::queue<SimpleMsg*> msg_queue;
 
     boost::asio::ip::tcp::socket socket_tbusd_;
     boost::asio::io_context &io_context_;

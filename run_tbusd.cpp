@@ -7,7 +7,7 @@ using boost::asio::ip::tcp;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    try {
+//    try {
 //        if (argc < 2) {
 //            std::cerr << "Usage: simple_tbusd <port>\n";
 //            return 1;
@@ -29,10 +29,10 @@ int main(int argc, char *argv[]) {
 
         SimpleTbusd tbusd(io_context, endpoint, tbus_shm_name, route_info);
         io_context.run();
-    }
-    catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
+//    }
+//    catch (std::exception &e) {
+//        std::cerr << "Exception: " << e.what() << "\n";
+//    }
 
     return 0;
 }

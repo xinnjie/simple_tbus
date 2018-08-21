@@ -10,7 +10,8 @@
 
 enum class MessageType : uint32_t {
     TBUSMSG = 101,
-    DATA = 202
+    DATA = 202,
+    TELL_PRC_IP = 303
 };
 
 struct TbusMsg {
@@ -25,5 +26,10 @@ struct TbusMsg {
            << msg.write_index <<  "from_reader: " << (msg.from_reader ?  "true" : "false");
         return os;
     }
+};
+
+
+struct TellPrcIp {
+    uint32_t proc_id;
 };
 #endif //TENCENT_INTERN_TBUSMSG_H

@@ -18,7 +18,7 @@ add_executable(try_mapped_region_read trys/try_mapped_region_read.cpp)
 target_link_libraries(try_mapped_region_read ${Boost_LIBRARIES})
 
 
-add_library(simple_tbus
+add_library(simple_tbus STATIC
         SimpleTbus.cpp
         SimpleTbus.h
         SimpleTbusAPI.cpp
@@ -32,7 +32,7 @@ add_library(simple_tbus
         NetworkUtil.cpp
         NetworkUtil.h
         SimpleTbusd.cpp
-        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h)
+        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h structs/SimpleMsg.cpp structs/SimpleMsg.h)
 target_link_libraries(simple_tbus ${Boost_LIBRARIES})
 
 add_executable(simple_tbus_run run_simple_tbus.cpp)
@@ -47,5 +47,14 @@ target_link_libraries(channel_receive simple_tbus)
 add_executable(channel_send sh/channel_send.cpp)
 target_link_libraries(channel_send simple_tbus)
 
+
+#  new
+
 add_executable(tbusd_run run_tbusd.cpp)
 target_link_libraries(tbusd_run simple_tbus)
+
+add_executable(api_channel_receive run_api/run_channel_recv_api.cpp)
+target_link_libraries(api_channel_receive simple_tbus)
+
+add_executable(api_channel_send run_api/run_channel_send_api.cpp)
+target_link_libraries(api_channel_send simple_tbus)
