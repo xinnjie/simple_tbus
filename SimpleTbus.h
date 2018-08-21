@@ -16,7 +16,7 @@
 #include "structs/SimpleTbusInfo.h"
 #include "SimpleChannel.h"
 #include "structs/TbusMsg.h"
-#include "structs/SimpleMsg.h"
+#include "SimpleMsg.h"
 
 class SimpleTbus {
 public:
@@ -61,6 +61,10 @@ public:
     SimpleChannel &get_send_channel(const std::string &send_channel_name);
 
     SimpleChannel &get_recv_channel(const std::string &read_channel_name);
+
+    SimpleChannel &get_send_channel(uint32_t proc_id);
+
+    SimpleChannel &get_recv_channel(uint32_t proc_id);
 private:
 
     /**

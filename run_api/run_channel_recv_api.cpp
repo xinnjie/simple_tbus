@@ -3,29 +3,39 @@
 //
 
 #include <iostream>
+#include <thread>
 #include "../SimpleTbusAPI.h"
 
 using namespace std;
+
+void check_success(int result, std::string fail_message) {
+    if (result != 0) {
+        cout << "check faild: " << fail_message << endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
-    if (argc != 5) {
-        cout << "usage: " << argv[0] << "tbus_name src_ip dest_ip send_message" << endl;
+    if (argc != 2) {
+        cout << "usage: " << argv[0] << "bind_ip" << endl;
         return -1;
     }
-    string shm_name = argv[1];
-    string src_ip = argv[2];
-    string dest_ip = argv[3];
-    string message = argv[4];
+    string bind_ip = argv[1];
 
-    SimpleTbus tbus(src_ip, shm_name, <#initializer#>, <#initializer#>);
-    SimpleChannel &send_channel = tbus.get_send_channel(dest_ip);
-    int success = tbus.send_msg(dest_ip, message.c_str(), message.size() + 1);
-    if (success == 0) {
-        cout << "send: " << message << endl;
-    }
-    else {
-        cout << "fail to send" << endl;
+    check_success(simple_tbus::bind(bind_ip), "fail to bind");
+
+    std::this_thread::sleep_for(2s);
+
+
+    for (int i = 0; i < 10; ++i) {
+        char buffer[1024];
+        size_t len = 1024;
+        check_success(simple_tbus::recv(buffer, len), "fail to send");
+
+        cout << "resv: " << buffer << endl;
+        std::this_thread::sleep_for(5s);
     }
 
-    cout << "read_index: " << send_channel.get_read_index() << "; write_index: " << send_channel.get_write_index();
+
+//    cout << "read_index: " << send_channel.get_read_index() << "; write_index: " << send_channel.get_write_index();
     return 0;
 }

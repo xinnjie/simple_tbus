@@ -18,7 +18,7 @@ void SimpleTbusd::do_accept() {
             [this](boost::system::error_code ec, tcp::socket socket) {
                 if (!ec) {
                     BOOST_LOG_TRIVIAL(info) << socket.remote_endpoint().address() << " connected";
-                    std::make_shared<SimpleTbusdConn>(std::move(socket), *channels_ptr, *process_id2ip, local_conns)->start();
+                    std::make_shared<SimpleTbusdConn>(std::move(socket), *channels_ptr, process_id2endpoint, local_conns, remote_endpoint2socket)->start();
                 }
                 do_accept();
             });
@@ -31,8 +31,8 @@ void SimpleTbusd::do_accept() {
 SimpleTbusd::SimpleTbusd(boost::asio::io_context &io_context,
                          const boost::asio::ip::tcp::endpoint &accept_endpoint,
                          const std::string &tbus_shm_name,
-                         std::map<uint32_t, uint32_t> *process_id2ip) : acceptor_(io_context, accept_endpoint),
-                         process_id2ip(process_id2ip) {
+                         std::map<uint32_t, std::pair<uint32_t, uint32_t>> process_id2endpoint) : acceptor_(io_context, accept_endpoint),
+                         process_id2endpoint(process_id2endpoint) {
     read_tbus_info(tbus_shm_name);
     do_accept();
 }

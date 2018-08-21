@@ -49,7 +49,7 @@ void SimpleTbusdConn::do_read_local_proc_id() {
                             boost::asio::buffer(&buffer_proc_id, sizeof(buffer_proc_id)),
                             [this, self](boost::system::error_code ec, std::size_t bytes_transferred) {
                                 if (!ec && bytes_transferred == sizeof(buffer_proc_id)) {
-                                    BOOST_LOG_TRIVIAL(info) << "read local proc id" << addr_ntoa(buffer_proc_id);
+                                    BOOST_LOG_TRIVIAL(info) << "read local proc id: " << addr_ntoa(buffer_proc_id);
                                     local_conns[buffer_proc_id] = shared_from_this();
                                     do_read_message_type();
                                 } else {
@@ -65,11 +65,50 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                             [this, self](boost::system::error_code ec, std::size_t bytes_transferred) {
                                 if (!ec && bytes_transferred == sizeof(tbus_msg)) {
                                     BOOST_LOG_TRIVIAL(debug) << "read TbusMsg: " << tbus_msg;
-                                    // todo do something
-                                    if (tbus_msg.from_reader) {
-//                                        if ()
+
+                                    uint32_t send_proc = tbus_msg.from;
+                                    uint32_t resv_proc = tbus_msg.to;
+                                    if (tbus_msg.from_reader != 0) { //有写事件发生 由 from 发送
+                                        if (_is_local(send_proc)) { // 发送方为本地进程
+                                            if (_is_local(resv_proc)) { // 转发这条消息给to
+                                                auto &recv_sock = local_conns[resv_proc]->get_socket();
+                                                boost::system::error_code ignored_error; //todo  ignored
+                                                boost::asio::write(recv_sock, boost::asio::buffer(&tbus_msg, sizeof(tbus_msg)), ignored_error);
+                                            }
+                                            else { // 转发这条消息给远程tbusd, 并发送data给远程tbusd
+//                                                auto &remote_tbusd_sock =
+                                            }
+                                        }
+                                        else { // 发送方为远程tbusd
+                                            if (_is_local(resv_proc)) { // 远程发送到本地，接收data
+
+                                            }
+                                            else { // 远程到远程，这是不应该发生的情况
+                                                BOOST_LOG_TRIVIAL(error) << "recv write event error: remote to remote";
+                                            }
+
+                                        }
+                                    }
+                                    else { //读事件发生 由 to 发送
+                                        if (_is_local(resv_proc)) {
+                                            if (_is_local(send_proc)) {
+                                                // do nothing
+                                            }
+                                            else { // 转发给send_proc所在的tbusd 读的情况
+
+                                            }
+                                        }
+                                        else {
+                                            if (_is_local(send_proc)) {
+
+                                            }
+                                            else {
+                                                BOOST_LOG_TRIVIAL(error) << "recv read event error: remote to remote";
+                                            }
+                                        }
 
                                     }
+
 
                                 } else {
                                     BOOST_LOG_TRIVIAL(error) << "read TbusMsg error";
@@ -112,11 +151,13 @@ void SimpleTbusdConn::do_read_data_body(){
 
 SimpleTbusdConn::SimpleTbusdConn(boost::asio::ip::tcp::socket socket,
                                  std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels,
-                                 std::map<uint32_t, uint32_t> &process_id2ip,
-                                 std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns) : socket_(std::move(socket)),
+                                 std::map<uint32_t, std::pair<uint32_t, uint32_t>> &process_id2endpoint,
+                                 std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns,
+                                 std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket) : socket_(std::move(socket)),
                                                                                          channels(channels),
-                                                                                         process_id2ip(process_id2ip),
-                                                                                         local_conns(local_conns){
+                                                                                         process_id2endpoint(process_id2endpoint),
+                                                                                         local_conns(local_conns),
+                                                                                         remote_endpoint2socket(remote_endpoint2socket){
 }
 
 

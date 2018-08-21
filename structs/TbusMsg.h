@@ -23,7 +23,7 @@ struct TbusMsg {
 
     friend std::ostream &operator<<(std::ostream &os, const TbusMsg &msg) {
         os << "from: " << addr_ntoa(msg.from)  << " to: " << addr_ntoa(msg.to) << " read_index: " << msg.read_index << " write_index: "
-           << msg.write_index <<  "from_reader: " << (msg.from_reader ?  "true" : "false");
+           << msg.write_index <<  " from_reader: " << (msg.from_reader ?  "true" : "false");
         return os;
     }
 };

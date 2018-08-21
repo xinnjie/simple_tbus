@@ -32,7 +32,7 @@ add_library(simple_tbus STATIC
         NetworkUtil.cpp
         NetworkUtil.h
         SimpleTbusd.cpp
-        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h structs/SimpleMsg.cpp structs/SimpleMsg.h)
+        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h SimpleMsg.cpp SimpleMsg.h)
 target_link_libraries(simple_tbus ${Boost_LIBRARIES})
 
 add_executable(simple_tbus_run run_simple_tbus.cpp)

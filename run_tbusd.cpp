@@ -22,9 +22,9 @@ int main(int argc, char *argv[]) {
 
 
         // 路由表
-        auto route_info = new std::map<uint32_t, uint32_t>();
-        route_info->insert({addr_aton("0.0.0.1"), addr_aton("127.0.0.1")});
-        route_info->insert({addr_aton("0.0.0.2"), addr_aton("127.0.0.1")});
+        auto route_info =  std::map<uint32_t, std::pair<uint32_t, uint32_t>>();
+        route_info.insert({addr_aton("0.0.0.1"), {addr_aton("127.0.0.1"), 0}});
+        route_info.insert({addr_aton("0.0.0.2"), {addr_aton("127.0.0.1"), 0}});
 
 
         SimpleTbusd tbusd(io_context, endpoint, tbus_shm_name, route_info);

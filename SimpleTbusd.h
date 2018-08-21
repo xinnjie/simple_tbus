@@ -26,12 +26,12 @@ public:
      * @param accept_endpoint tbusd监听地址
      * @param channel_addrs_p 通道的共享内存地址
      * @param channel_infos_p 通道信息
-     * @param process_id2ip   路由信息
+     * @param process_id2endpoint   路由信息
      */
     SimpleTbusd(boost::asio::io_context &io_context,
                 const boost::asio::ip::tcp::endpoint &accept_endpoint,
                 const std::string &tbus_shm_name,
-                std::map<uint32_t, uint32_t> *process_id2ip);
+                std::map<uint32_t, std::pair<uint32_t, uint32_t>> process_id2endpoint);
 
 private:
     void do_accept();
@@ -47,7 +47,8 @@ private:
     std::unique_ptr<std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>>> channels_ptr;
 
     // 路由信息
-    std::unique_ptr<std::map<uint32_t, uint32_t>> process_id2ip;
+    std::map<uint32_t, std::pair<uint32_t, uint32_t>> process_id2endpoint;
+    std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> remote_endpoint2socket;
 
 
     /*****************所有连接*********************/

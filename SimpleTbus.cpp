@@ -36,6 +36,14 @@ SimpleChannel &SimpleTbus::get_recv_channel(const std::string &read_channel_name
     return *recv_channels.at(addr_aton(read_channel_name.c_str()));
 }
 
+SimpleChannel &SimpleTbus::get_send_channel(uint32_t proc_id) {
+    return *send_channels.at(proc_id);
+}
+
+SimpleChannel &SimpleTbus::get_recv_channel(uint32_t proc_id) {
+    return *recv_channels.at(proc_id);
+}
+
 int
 SimpleTbus::resv_msg(uint32_t channel_id, void *msg_buffer, size_t &max_msg_len) {
     SimpleChannel &resv_channel = *recv_channels.at(channel_id);
@@ -105,6 +113,7 @@ void _restore_read_channel_queue(SimpleChannel &channel, boost::lockfree::queue<
         while (read_index < write_index) {
             uint32_t msg_size = *reinterpret_cast<uint32_t*>(shm_start + read_index);
             read_queue.push(channel.get_from_ip());
+            read_index += msg_size + sizeof(uint32_t);
         }
     }
 }
@@ -163,21 +172,6 @@ void SimpleTbus::do_read_tbusmsg() {
                             });
 }
 
-//void SimpleTbus::do_send_tbusmsg_type(TbusMsg tbusMsg) {
-//    send_message_type = static_cast<uint32_t>(MessageType::TBUSMSG);
-//    boost::asio::async_write(socket_tbusd_,
-//                             boost::asio::buffer(&send_message_type,
-//                                                 sizeof(send_message_type)),
-//                             [this, tbusMsg](boost::system::error_code ec, std::size_t length) {
-//                                 if (!ec && length == sizeof(send_message_type)) {
-//                                     BOOST_LOG_TRIVIAL(debug) << "send TbusMsg header " << send_message_type;
-//                                     do_send_tbusmsg(tbusMsg);
-//                                 } else {
-//                                     socket_tbusd_.close();
-//                                     BOOST_LOG_TRIVIAL(error) << "write error, socket close";
-//                                 }
-//                             });
-//}
 
 void SimpleTbus::notify_tbusd_after_send(TbusMsg tbusMsg) {
     uint32_t msg_len = sizeof(TbusMsg) + sizeof(uint32_t);
@@ -245,29 +239,15 @@ void SimpleTbus::_aysn_write() {
 
 
 
-
-//void SimpleTbus::do_send_tbusmsg(TbusMsg tbusmsg) {
-//    std::shared_ptr<TbusMsg> tbusmsg_ptr = std::make_shared<TbusMsg>(tbusmsg);
-//    boost::asio::async_write(socket_tbusd_,
-//                             boost::asio::buffer(&(*tbusmsg_ptr),
-//                                                 sizeof(TbusMsg)),
-//                                                 [this, tbusmsg_ptr](boost::system::error_code ec, std::size_t length) {
-//                                                     if (!ec && length == sizeof(TbusMsg)) {
-//                                                         BOOST_LOG_TRIVIAL(debug) << "send TbusMsg: " << *tbusmsg_ptr;
-//                                                     } else {
-//                                                         socket_tbusd_.close();
-//                                                         BOOST_LOG_TRIVIAL(error) << "write error, socket close";
-//                                                     }
-//                                                 });
-//}
-
 int SimpleTbus::send_msg_impl(const std::string &send_channel_name, const void *msg_buffer, size_t message_len) {
     int success = send_msg(send_channel_name, msg_buffer, message_len);
-    if (success == 0) {
+    if (success == 0) { //success
         TbusMsg notify_msg;
         notify_msg.from_reader = 0; //false
         notify_msg.from = self_address_n;
         notify_msg.to = addr_aton(send_channel_name.c_str());
+        notify_msg.read_index = get_send_channel(send_channel_name.c_str()).get_read_index();
+        notify_msg.write_index = get_send_channel(send_channel_name.c_str()).get_write_index();
         notify_tbusd_after_send(notify_msg);
     }
     return success;

@@ -28,10 +28,10 @@ int main(int argc, char *argv[]) {
 
     std::this_thread::sleep_for(2s);
 
-    check_success(simple_tbus::send(dest_ip, message.c_str(), message.size() + 1), "fail to send");
-
-    std::this_thread::sleep_for(10s);
-
+    for (int i = 0; i < 10; ++i) {
+        check_success(simple_tbus::send(dest_ip, message.c_str(), message.size() + 1), "fail to send");
+        std::this_thread::sleep_for(5s);
+    }
 
 //    cout << "read_index: " << send_channel.get_read_index() << "; write_index: " << send_channel.get_write_index();
     return 0;

@@ -22,8 +22,9 @@ class SimpleTbusdConn : public std::enable_shared_from_this<SimpleTbusdConn> {
 public:
     SimpleTbusdConn(boost::asio::ip::tcp::socket socket,
                         std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels,
-                        std::map<uint32_t, uint32_t> &process_id2ip,
-                        std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns);
+                        std::map<uint32_t, std::pair<uint32_t, uint32_t>> &process_id2endpoint,
+                        std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns,
+                        std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket);
 
     void start();
 
@@ -37,9 +38,8 @@ public:
 
     void do_read_local_proc_id();
 
-    void do_send_message_type();
-
     void do_send_tbusmsg();
+
 
     // todo
     void do_send_data(const void *msg_buffer, size_t message_len);
@@ -51,15 +51,12 @@ private:
     TbusMsg tbus_msg;
     uint32_t len, cur_read_len, message_type, buffer_proc_id;
     std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels;
-    std::map<uint32_t, uint32_t> &process_id2ip;
+    std::map<uint32_t, std::pair<uint32_t, uint32_t>> &process_id2endpoint;
+    std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket;
     std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns;
-//    std::vector<std::shared_ptr<SimpleTbusdConn>> &conns;
 
-
-    // todo 修改！
-    inline bool is_local_host(uint32_t addr_n) {
-        static uint32_t local_n = addr_aton("127.0.0.1");
-        return addr_n == local_n;
+    inline bool _is_local(uint32_t proc_id) {
+        return local_conns.find(proc_id) != local_conns.end();
     }
 };
 
