@@ -9,6 +9,7 @@
 #include "structs/TbusMsg.h"
 #include "structs/SimpleChannelInfo.h"
 #include "NetworkUtil.h"
+#include "SimpleChannel.h"
 
 
 /**
@@ -20,8 +21,7 @@
 class SimpleTbusdConn {
 public:
     SimpleTbusdConn(boost::asio::ip::tcp::socket socket,
-                    std::map<std::pair<uint32_t, uint32_t>, void *> &channel_addrs,
-                    std::map<std::pair<uint32_t, uint32_t>, SimpleChannelInfo *> &channel_infos,
+                    std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels,
                     std::map<uint32_t, uint32_t> &process_id2ip);
 
     void start();
@@ -34,12 +34,14 @@ public:
 
     void do_read_tbusmsg();
 
+    // todo
+    void do_send_data(const void *msg_buffer, size_t message_len);
+
 private:
     boost::asio::ip::tcp::socket socket_;
     TbusMsg tbus_msg;
     uint32_t len, cur_read_len, message_type;
-    std::map<std::pair<uint32_t, uint32_t>, void*> &channel_addrs;
-    std::map<std::pair<uint32_t, uint32_t>, SimpleChannelInfo*> &channel_infos;
+    std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels;
     std::map<uint32_t, uint32_t> &process_id2ip;
 
     // todo 修改！

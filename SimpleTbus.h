@@ -17,9 +17,9 @@ public:
     /**
      * 从名为shm_name的共享内存中找到所有通道信息，构建出 send,recv channel 的字典
      * @param self_address
-     * @param shm_name
+     * @param tbus_shm_name
      */
-    SimpleTbus(const std::string &self_address, const std::string &shm_name);
+    SimpleTbus(const std::string &self_address, const std::string &tbus_shm_name);
 
     // todo 将下面的这些方法改为不抛出异常的
     /**
@@ -56,9 +56,9 @@ private:
      * self_address_n = aton(self_address)
      */
     uint32_t self_address_n;
+
     // tbus信息所在的共享内存名称
     std::string shm_name;
-
     std::unique_ptr<boost::interprocess::shared_memory_object> shm_obj_ptr;
     std::unique_ptr<boost::interprocess::mapped_region> region_ptr;
 

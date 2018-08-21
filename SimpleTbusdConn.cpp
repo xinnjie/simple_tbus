@@ -85,11 +85,9 @@ void SimpleTbusdConn::do_read_data_body(){
 }
 
 SimpleTbusdConn::SimpleTbusdConn(boost::asio::ip::tcp::socket socket,
-                                 std::map<std::pair<uint32_t, uint32_t>, void *> &channel_addrs,
-                                 std::map<std::pair<uint32_t, uint32_t>, SimpleChannelInfo *> &channel_infos,
+                                 std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels,
                                  std::map<uint32_t, uint32_t> &process_id2ip) : socket_(std::move(socket)),
-                                                                                          channel_addrs(channel_addrs),
-                                                                                          channel_infos(channel_infos),
+                                                                                          channels(channels),
                                                                                           process_id2ip(
                                                                                                   process_id2ip) {}
 

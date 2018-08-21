@@ -9,11 +9,11 @@
 #include "SimpleTbus.h"
 #include "NetworkUtil.h"
 
-SimpleTbus::SimpleTbus(const std::string &self_address, const std::string &shm_name) : self_address(self_address),
-                                                                                       shm_name(shm_name) {
+SimpleTbus::SimpleTbus(const std::string &self_address, const std::string &tbus_shm_name) : self_address(self_address),
+                                                                                       shm_name(tbus_shm_name) {
     using namespace boost::interprocess;
     self_address_n = addr_aton(self_address.c_str());
-    shm_obj_ptr = std::make_unique<shared_memory_object>(open_only, shm_name.c_str(), read_write);
+    shm_obj_ptr = std::make_unique<shared_memory_object>(open_only, tbus_shm_name.c_str(), read_write);
     offset_t shm_size = 0;
     assert(shm_obj_ptr->get_size(shm_size));
     region_ptr = std::make_unique<mapped_region>(*shm_obj_ptr, read_write, 0, shm_size);
