@@ -252,9 +252,10 @@ int SimpleTbus::send_msg_impl(const std::string &send_channel_name, const void *
     return success;
 }
 
-int SimpleTbus::resv_msg_impl(void *msg_buffer, size_t &max_msg_len) {
+int SimpleTbus::resv_msg_impl(void *msg_buffer, size_t &max_msg_len, std::string &src_proc_id) {
     uint32_t resv_prc = 0;
     if (read_queue.pop(resv_prc)) {
+        src_proc_id = addr_ntoa(resv_prc);
         return resv_msg(resv_prc, msg_buffer, max_msg_len);
     }
     return -1;

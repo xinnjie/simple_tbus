@@ -29,13 +29,14 @@ int main(int argc, char *argv[]) {
     while (true) {
         char buffer[1024];
         size_t len = 1024;
-        auto success = simple_tbus::recv(buffer, len);
+        std::string source;
+        auto success = simple_tbus::recv(buffer, len, source);
         check_success(success, "fail to resv");
 
         if (success == 0) {
             cout << "resv: " << buffer << endl;
         }
-        std::this_thread::sleep_for(5s);
+        std::this_thread::sleep_for(3s);
     }
 
 

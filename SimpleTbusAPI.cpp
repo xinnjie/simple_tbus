@@ -27,8 +27,8 @@ namespace simple_tbus {
         return tbus_ptr->send_msg_impl(dest_id, buff, len);
     }
 
-    int recv(char *buff, size_t &max_len) {
+    int recv(char *buff, size_t &max_len, std::string &src_proc_id) {
         if (tbus_ptr == nullptr) return -1;
-        return tbus_ptr->resv_msg_impl(buff, max_len);
+        return tbus_ptr->resv_msg_impl(buff, max_len, src_proc_id);
     }
 }

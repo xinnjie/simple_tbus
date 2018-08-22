@@ -68,10 +68,12 @@ void SimpleTbusdConn::do_read_tbusmsg() {
 
                                     uint32_t send_proc = tbus_msg.from;
                                     uint32_t resv_proc = tbus_msg.to;
+                                    // todo bug!!!
                                     if (tbus_msg.from_reader != 0) { //有写事件发生 由 from 发送
                                         if (_is_local(send_proc)) { // 发送方为本地进程
                                             if (_is_local(resv_proc)) { // 转发这条消息给to
                                                 auto &recv_sock = local_conns[resv_proc]->get_socket();
+                                                BOOST_LOG_TRIVIAL(debug) << "send TbusMsg: " << tbus_msg << " to: " << addr_ntoa(resv_proc);
                                                 boost::system::error_code ignored_error; //todo  ignored
                                                 boost::asio::write(recv_sock, boost::asio::buffer(&tbus_msg, sizeof(tbus_msg)), ignored_error);
                                             }
@@ -113,16 +115,21 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                                     }
                                     else { //读事件发生 由 to 发送
                                         if (_is_local(resv_proc)) {
-                                            if (_is_local(send_proc)) {
+                                            if (_is_local(send_proc)) {  // 读事件，且双方都为本地，能够直接通信
                                                 // do nothing
                                             }
-                                            else { // 转发给send_proc所在的tbusd 读的情况
+                                            else { // 本地读转发给send_proc所在的tbusd 读的情况
+                                                auto &remote_tbus_endpoint = process_id2endpoint[send_proc];
+                                                auto &remote_tbusd_sock = *(remote_endpoint2socket[remote_tbus_endpoint]);
 
+                                                boost::system::error_code ignored_error; //todo  ignored
+                                                boost::asio::write(remote_tbusd_sock, boost::asio::buffer(&tbus_msg, sizeof(tbus_msg)), ignored_error);
                                             }
                                         }
                                         else {
-                                            if (_is_local(send_proc)) {
-
+                                            if (_is_local(send_proc)) {    // 远程读，更新本地channel
+                                                auto &channel = *channels[std::make_pair(send_proc, resv_proc)];
+                                                channel.set_read_index(tbus_msg.read_index);
                                             }
                                             else {
                                                 BOOST_LOG_TRIVIAL(error) << "recv read event error: remote to remote";
@@ -130,8 +137,7 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                                         }
 
                                     }
-
-
+                                    do_read_message_type();
                                 } else {
                                     BOOST_LOG_TRIVIAL(error) << "read TbusMsg error";
                                 }

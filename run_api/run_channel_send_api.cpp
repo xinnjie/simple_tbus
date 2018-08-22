@@ -28,9 +28,12 @@ int main(int argc, char *argv[]) {
 
     std::this_thread::sleep_for(2s);
 
+    int i = 0;
     while (true) {
-        check_success(simple_tbus::send(dest_ip, message.c_str(), message.size() + 1), "fail to send");
-        std::this_thread::sleep_for(5s);
+        ++i;
+        string message_send = message + std::to_string(i);
+        check_success(simple_tbus::send(dest_ip, message_send.c_str(), message_send.size() + 1), "fail to send");
+        std::this_thread::sleep_for(3s);
     }
 
 //    cout << "read_index: " << send_channel.get_read_index() << "; write_index: " << send_channel.get_write_index();

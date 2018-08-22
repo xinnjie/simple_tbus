@@ -16,7 +16,7 @@ namespace simple_tbus {
 
     int send(const std::string &dest_id, const char *buff, size_t len);
 
-    int recv(char *buff, size_t &max_len);
+    int recv(char *buff, size_t &max_len, std::string &src_proc_id);
 }
 
 //int unbind()

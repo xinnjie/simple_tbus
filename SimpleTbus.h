@@ -36,7 +36,7 @@ public:
 
     int send_msg_impl(const std::string &send_channel_name, const void *msg_buffer, size_t message_len);
 
-    int resv_msg_impl(void *msg_buffer, size_t &max_msg_len);
+    int resv_msg_impl(void *msg_buffer, size_t &max_msg_len, std::string &src_proc_id);
 
     // todo 将下面的这些方法改为不抛出异常的
     /**
