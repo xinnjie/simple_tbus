@@ -76,7 +76,6 @@ void SimpleTbusdConn::do_read_tbusmsg() {
 
                                     uint32_t send_proc = tbus_msg.from;
                                     uint32_t resv_proc = tbus_msg.to;
-                                    //todo  bug!!!
                                     if (tbus_msg.from_reader == 0) { //有写事件发生 由 from 发送
                                         if (_is_local(send_proc)) { // 发送方为本地进程
                                             if (_is_local(resv_proc)) { // 转发这条消息给to

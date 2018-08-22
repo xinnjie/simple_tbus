@@ -8,15 +8,6 @@ find_package(Boost COMPONENTS system log)
 
 include_directories(${Boost_INCLUDE_DIR})
 
-add_executable(try_uname_share trys/try_uname_share.cpp)
-target_link_libraries(try_uname_share ${Boost_LIBRARIES})
-
-add_executable(try_mapped_region_write trys/try_mapped_region_write.cpp)
-target_link_libraries(try_mapped_region_write ${Boost_LIBRARIES})
-
-add_executable(try_mapped_region_read trys/try_mapped_region_read.cpp)
-target_link_libraries(try_mapped_region_read ${Boost_LIBRARIES})
-
 
 add_library(simple_tbus STATIC
         SimpleTbus.cpp
@@ -32,7 +23,7 @@ add_library(simple_tbus STATIC
         NetworkUtil.cpp
         NetworkUtil.h
         SimpleTbusd.cpp
-        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h SimpleMsg.cpp SimpleMsg.h)
+        SimpleTbusd.h SimpleTbusdConn.cpp SimpleTbusdConn.h structs/TbusMsg.h structs/SimpleMsg.cpp structs/SimpleMsg.h)
 target_link_libraries(simple_tbus ${Boost_LIBRARIES})
 
 
@@ -41,12 +32,11 @@ target_link_libraries(create_channels simple_tbus)
 
 
 #  new
-
-add_executable(tbusd_run run_tbusd.cpp)
+add_executable(tbusd_run sh/run_tbusd.cpp)
 target_link_libraries(tbusd_run simple_tbus)
 
-add_executable(api_channel_receive run_api/run_channel_recv_api.cpp)
+add_executable(api_channel_receive sh/run_channel_recv_api.cpp)
 target_link_libraries(api_channel_receive simple_tbus)
 
-add_executable(api_channel_send run_api/run_channel_send_api.cpp)
+add_executable(api_channel_send sh/run_channel_send_api.cpp)
 target_link_libraries(api_channel_send simple_tbus)

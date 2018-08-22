@@ -16,7 +16,7 @@
 #include "structs/SimpleTbusInfo.h"
 #include "SimpleChannel.h"
 #include "structs/TbusMsg.h"
-#include "SimpleMsg.h"
+#include "structs/SimpleMsg.h"
 
 class SimpleTbus {
 public:

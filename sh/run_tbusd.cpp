@@ -1,7 +1,7 @@
 #include <boost/asio.hpp>
 #include <iostream>
-#include "SimpleTbusd.h"
-#include "NetworkUtil.h"
+#include "../SimpleTbusd.h"
+#include "../NetworkUtil.h"
 
 using boost::asio::ip::tcp;
 using namespace std;
