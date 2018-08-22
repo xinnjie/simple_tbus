@@ -38,11 +38,11 @@ public:
 
     void do_read_local_proc_id();
 
-    void do_send_tbusmsg();
-
-
-    // todo
-    void do_send_data(const void *msg_buffer, size_t message_len);
+//    void do_send_tbusmsg();
+//
+//
+//    // todo
+//    void do_send_data(const void *msg_buffer, size_t message_len);
 
     boost::asio::ip::tcp::socket &get_socket() { return socket_; }
 

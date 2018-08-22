@@ -26,12 +26,15 @@ int main(int argc, char *argv[]) {
     std::this_thread::sleep_for(2s);
 
 
-    for (int i = 0; i < 10; ++i) {
+    while (true) {
         char buffer[1024];
         size_t len = 1024;
-        check_success(simple_tbus::recv(buffer, len), "fail to send");
+        auto success = simple_tbus::recv(buffer, len);
+        check_success(success, "fail to resv");
 
-        cout << "resv: " << buffer << endl;
+        if (success == 0) {
+            cout << "resv: " << buffer << endl;
+        }
         std::this_thread::sleep_for(5s);
     }
 

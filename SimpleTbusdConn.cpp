@@ -76,11 +76,33 @@ void SimpleTbusdConn::do_read_tbusmsg() {
                                                 boost::asio::write(recv_sock, boost::asio::buffer(&tbus_msg, sizeof(tbus_msg)), ignored_error);
                                             }
                                             else { // 转发这条消息给远程tbusd, 并发送data给远程tbusd
-//                                                auto &remote_tbusd_sock =
+                                                auto &remote_tbus_endpoint = process_id2endpoint[resv_proc];
+                                                auto &remote_tbusd_sock = *(remote_endpoint2socket[remote_tbus_endpoint]);
+
+                                                auto &channel = *channels[std::make_pair(send_proc, resv_proc)];
+                                                char *shm_start = channel.get_shm_ptr();
+
+                                                boost::system::error_code ignored_error; //todo  ignored
+                                                boost::asio::write(remote_tbusd_sock, boost::asio::buffer(&tbus_msg, sizeof(tbus_msg)), ignored_error);
+
+                                                // todo 增加一个write_len字段
+                                                // todo 循环队列还需要特殊考虑
+                                                uint32_t write_len = tbus_msg.write_data_len,
+                                                        last_write_index = channel.get_write_index() - write_len;
+                                                boost::asio::write(remote_tbusd_sock, boost::asio::buffer(shm_start + last_write_index, write_len), ignored_error);
                                             }
                                         }
                                         else { // 发送方为远程tbusd
                                             if (_is_local(resv_proc)) { // 远程发送到本地，接收data
+                                                // todo 接收的大小有限制
+                                                char data_buffer[1024];
+                                                boost::system::error_code ignored_error; //todo  ignored
+                                                boost::asio::read(socket_, boost::asio::buffer(data_buffer, sizeof(uint32_t)), ignored_error);
+                                                uint32_t msg_len = *reinterpret_cast<uint32_t*>(data_buffer);
+                                                boost::asio::read(socket_, boost::asio::buffer(data_buffer + sizeof(uint32_t), msg_len), ignored_error);
+
+                                                auto &channel = *channels[std::make_pair(send_proc, resv_proc)];
+                                                channel.channel_write_raw(data_buffer, msg_len);
 
                                             }
                                             else { // 远程到远程，这是不应该发生的情况

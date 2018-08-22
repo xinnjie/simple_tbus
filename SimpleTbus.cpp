@@ -237,8 +237,6 @@ void SimpleTbus::_aysn_write() {
     }
 }
 
-
-
 int SimpleTbus::send_msg_impl(const std::string &send_channel_name, const void *msg_buffer, size_t message_len) {
     int success = send_msg(send_channel_name, msg_buffer, message_len);
     if (success == 0) { //success
@@ -248,6 +246,7 @@ int SimpleTbus::send_msg_impl(const std::string &send_channel_name, const void *
         notify_msg.to = addr_aton(send_channel_name.c_str());
         notify_msg.read_index = get_send_channel(send_channel_name.c_str()).get_read_index();
         notify_msg.write_index = get_send_channel(send_channel_name.c_str()).get_write_index();
+        notify_msg.write_data_len = message_len + sizeof(uint32_t);
         notify_tbusd_after_send(notify_msg);
     }
     return success;

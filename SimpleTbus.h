@@ -94,6 +94,9 @@ private:
      * 在写完数据后通知tbusd
      */
 
+    /*
+     * 由于会出现两个线程同时写的情况，这里多设计了一个消息的缓存队列
+     */
     void handle_async_write(void *data, uint32_t len);
     void _aysn_write();
     void notify_tbusd_after_send(TbusMsg tbusMsg);

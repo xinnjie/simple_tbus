@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     std::this_thread::sleep_for(2s);
 
-    for (int i = 0; i < 10; ++i) {
+    while (true) {
         check_success(simple_tbus::send(dest_ip, message.c_str(), message.size() + 1), "fail to send");
         std::this_thread::sleep_for(5s);
     }

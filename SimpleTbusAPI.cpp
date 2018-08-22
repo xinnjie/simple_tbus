@@ -7,6 +7,7 @@
 #include "SimpleTbusAPI.h"
 
 namespace simple_tbus {
+//    todo 之后换一种写法
     static boost::asio::io_context io_context;
     static SimpleTbus *tbus_ptr;
     static std::thread *thread_ptr;
