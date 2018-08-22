@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
         if (success == 0) {
             cout << "resv: " << buffer << endl;
         }
-        std::this_thread::sleep_for(3s);
+        std::this_thread::sleep_for(1s);
     }
 
 

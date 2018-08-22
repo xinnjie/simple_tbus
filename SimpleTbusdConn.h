@@ -5,6 +5,8 @@
 #ifndef TENCENT_INTERN_SIMPLETBUSDCONN_H
 #define TENCENT_INTERN_SIMPLETBUSDCONN_H
 #include <unordered_map>
+#include <set>
+#include <map>
 #include <boost/asio.hpp>
 #include "structs/TbusMsg.h"
 #include "structs/SimpleChannelInfo.h"
@@ -24,25 +26,17 @@ public:
                         std::map<std::pair<uint32_t, uint32_t>, std::unique_ptr<SimpleChannel>> &channels,
                         std::map<uint32_t, std::pair<uint32_t, uint32_t>> &process_id2endpoint,
                         std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns,
-                        std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket);
+                        std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket,
+                        std::set<uint32_t> &local_proc_id);
 
     void start();
 
     void do_read_message_type();
 
-    void do_read_data_header();
-
-    void do_read_data_body();
 
     void do_read_tbusmsg();
 
     void do_read_local_proc_id();
-
-//    void do_send_tbusmsg();
-//
-//
-//    // todo
-//    void do_send_data(const void *msg_buffer, size_t message_len);
 
     boost::asio::ip::tcp::socket &get_socket() { return socket_; }
 
@@ -54,9 +48,10 @@ private:
     std::map<uint32_t, std::pair<uint32_t, uint32_t>> &process_id2endpoint;
     std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> &remote_endpoint2socket;
     std::map<uint32_t, std::shared_ptr<SimpleTbusdConn>> &local_conns;
+    std::set<uint32_t> &local_proc_id;
 
     inline bool _is_local(uint32_t proc_id) {
-        return local_conns.find(proc_id) != local_conns.end();
+        return local_proc_id.find(proc_id) != local_proc_id.end();
     }
 };
 

@@ -19,7 +19,7 @@ struct TbusMsg {
     uint32_t to;
     uint32_t read_index;
     uint32_t write_index;
-    uint32_t from_reader;  // 用来标识发送该消息的reader还是writer
+    uint32_t from_reader;  // 用来标识发送该消息的reader还是writer    0/writer  1/reader
     uint32_t write_data_len; // 写入数据总量，包括消息+消息长度的4字节
 
     friend std::ostream &operator<<(std::ostream &os, const TbusMsg &msg) {

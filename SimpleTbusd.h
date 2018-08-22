@@ -5,6 +5,7 @@
 #ifndef TENCENT_INTERN_SIMPLETBUSD_H
 #define TENCENT_INTERN_SIMPLETBUSD_H
 #include <map>
+#include <set>
 
 #include <boost/asio.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
@@ -49,6 +50,7 @@ private:
     // 路由信息
     std::map<uint32_t, std::pair<uint32_t, uint32_t>> process_id2endpoint;
     std::map<std::pair<uint32_t, uint32_t>, std::shared_ptr<boost::asio::ip::tcp::socket>> remote_endpoint2socket;
+    std::set<uint32_t> local_proc_ids;
 
 
     /*****************所有连接*********************/

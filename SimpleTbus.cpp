@@ -21,7 +21,7 @@ SimpleTbus::SimpleTbus(const std::string &self_process_id, const std::string &tb
           shm_name(tbus_shm_name),
           io_context_(io_context),
           socket_tbusd_(io_context),
-          read_queue(1024) /*todo 超过1024个消息时queue会重新分配内存，这时不是thread safe的*/,
+          read_queue(102400) /*todo 超过102400个消息时queue会重新分配内存，这时不是thread safe的*/,
           msg_queue(1024){
     read_tbus_shm(self_process_id, tbus_shm_name);
     do_connect_to_tbusd(tbusd_endpoints);
@@ -159,8 +159,8 @@ void SimpleTbus::do_read_tbusmsg() {
                             [this](boost::system::error_code ec, std::size_t bytes_transferred) {
                                 if (!ec && bytes_transferred == sizeof(tbus_msg)) {
                                     BOOST_LOG_TRIVIAL(debug) << "read TbusMsg: " << tbus_msg;
-                                    if (!tbus_msg.from_reader) { // 来自发送者，需要在读队列中增加一个新的可读消息
-                                        read_queue.push(tbus_msg.read_index);
+                                    if (tbus_msg.from_reader == 0) { // 来自发送者，需要在读队列中增加一个新的可读消息
+                                        read_queue.push(tbus_msg.from);
                                     }
                                     else {
                                         BOOST_LOG_TRIVIAL(error) << "should not receive from reader";
