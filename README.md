@@ -1,5 +1,6 @@
 # Simple Tbus
 模仿tbus写的简易跨进程/网络间通信中间件
+实现思想见doc/实习述职
 
 # complie
 
